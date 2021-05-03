@@ -64,6 +64,9 @@ namespace osu.Game.Screens.Edit.Verify
             private IBindable<WorkingBeatmap> workingBeatmap { get; set; }
 
             [Resolved]
+            private BeatmapManager beatmapManager { get; set; }
+
+            [Resolved]
             private EditorBeatmap beatmap { get; set; }
 
             [Resolved]
@@ -122,10 +125,12 @@ namespace osu.Game.Screens.Edit.Verify
 
             private void refresh()
             {
-                var issues = generalVerifier.Run(beatmap, workingBeatmap.Value);
+                var workingBeatmapset = new WorkingBeatmapSet(workingBeatmap.Value, beatmapManager);
+
+                var issues = generalVerifier.Run(beatmap, workingBeatmapset);
 
                 if (rulesetVerifier != null)
-                    issues = issues.Concat(rulesetVerifier.Run(beatmap, workingBeatmap.Value));
+                    issues = issues.Concat(rulesetVerifier.Run(beatmap, workingBeatmapset));
 
                 table.Issues = issues
                                .OrderBy(issue => issue.Template.Type)

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using osu.Game.Beatmaps;
+using osu.Game.Rulesets.Edit.Checks.Components;
 using osu.Game.Rulesets.Objects;
 using osu.Game.Rulesets.Objects.Types;
 using osu.Game.Rulesets.Osu.Edit.Checks;
@@ -224,12 +225,12 @@ namespace osu.Game.Rulesets.Osu.Tests.Editor.Checks
 
         private void assertOk(IBeatmap beatmap)
         {
-            Assert.That(check.Run(beatmap, new TestWorkingBeatmap(beatmap)), Is.Empty);
+            Assert.That(runChecks(beatmap), Is.Empty);
         }
 
         private void assertOffscreenCircle(IBeatmap beatmap)
         {
-            var issues = check.Run(beatmap, new TestWorkingBeatmap(beatmap)).ToList();
+            var issues = runChecks(beatmap);
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckOffscreenObjects.IssueTemplateOffscreenCircle);
@@ -237,10 +238,16 @@ namespace osu.Game.Rulesets.Osu.Tests.Editor.Checks
 
         private void assertOffscreenSlider(IBeatmap beatmap)
         {
-            var issues = check.Run(beatmap, new TestWorkingBeatmap(beatmap)).ToList();
+            var issues = runChecks(beatmap);
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckOffscreenObjects.IssueTemplateOffscreenSlider);
+        }
+
+        private List<Issue> runChecks(IBeatmap beatmap)
+        {
+            var testWorkingBeatmapSet = new WorkingBeatmapSet(new TestWorkingBeatmap(beatmap));
+            return check.Run(beatmap, testWorkingBeatmapSet).ToList();
         }
     }
 }

@@ -40,7 +40,7 @@ namespace osu.Game.Tests.Editing.Checks
             mock.SetupGet(w => w.Beatmap).Returns(beatmap);
             mock.SetupGet(w => w.Track).Returns((Track)null);
 
-            Assert.That(check.Run(beatmap, mock.Object), Is.Empty);
+            Assert.That(check.Run(beatmap, new WorkingBeatmapSet(mock.Object)), Is.Empty);
         }
 
         [Test]
@@ -48,7 +48,7 @@ namespace osu.Game.Tests.Editing.Checks
         {
             var mock = getMockWorkingBeatmap(192);
 
-            Assert.That(check.Run(beatmap, mock.Object), Is.Empty);
+            Assert.That(check.Run(beatmap, new WorkingBeatmapSet(mock.Object)), Is.Empty);
         }
 
         [Test]
@@ -56,7 +56,7 @@ namespace osu.Game.Tests.Editing.Checks
         {
             var mock = getMockWorkingBeatmap(null);
 
-            var issues = check.Run(beatmap, mock.Object).ToList();
+            var issues = check.Run(beatmap, new WorkingBeatmapSet(mock.Object)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckAudioQuality.IssueTemplateNoBitrate);
@@ -67,7 +67,7 @@ namespace osu.Game.Tests.Editing.Checks
         {
             var mock = getMockWorkingBeatmap(0);
 
-            var issues = check.Run(beatmap, mock.Object).ToList();
+            var issues = check.Run(beatmap, new WorkingBeatmapSet(mock.Object)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckAudioQuality.IssueTemplateNoBitrate);
@@ -78,7 +78,7 @@ namespace osu.Game.Tests.Editing.Checks
         {
             var mock = getMockWorkingBeatmap(320);
 
-            var issues = check.Run(beatmap, mock.Object).ToList();
+            var issues = check.Run(beatmap, new WorkingBeatmapSet(mock.Object)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckAudioQuality.IssueTemplateTooHighBitrate);
@@ -89,7 +89,7 @@ namespace osu.Game.Tests.Editing.Checks
         {
             var mock = getMockWorkingBeatmap(64);
 
-            var issues = check.Run(beatmap, mock.Object).ToList();
+            var issues = check.Run(beatmap, new WorkingBeatmapSet(mock.Object)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(1));
             Assert.That(issues.Single().Template is CheckAudioQuality.IssueTemplateTooLowBitrate);

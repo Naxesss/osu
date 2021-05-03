@@ -30,12 +30,13 @@ namespace osu.Game.Rulesets.Edit.Checks
             new IssueTemplateTooUncompressed(this)
         };
 
-        public IEnumerable<Issue> Run(IBeatmap playableBeatmap, IWorkingBeatmap workingBeatmap)
+        public IEnumerable<Issue> Run(IBeatmap playableBeatmap, WorkingBeatmapSet workingBeatmapSet)
         {
             var backgroundFile = playableBeatmap.Metadata?.BackgroundFile;
             if (backgroundFile == null)
                 yield break;
 
+            var workingBeatmap = workingBeatmapSet.GetWorkingBeatmap(playableBeatmap.BeatmapInfo);
             var texture = workingBeatmap.Background;
             if (texture == null)
                 yield break;

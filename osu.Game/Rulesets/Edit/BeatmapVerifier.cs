@@ -25,9 +25,9 @@ namespace osu.Game.Rulesets.Edit
             new CheckAudioQuality()
         };
 
-        public IEnumerable<Issue> Run(IBeatmap playableBeatmap, WorkingBeatmap workingBeatmap)
+        public IEnumerable<Issue> Run(IBeatmap playableBeatmap, WorkingBeatmapSet workingBeatmapSet)
         {
-            return checks.SelectMany(check => check.Run(playableBeatmap, workingBeatmap));
+            return checks.SelectMany(check => check.Run(playableBeatmap, workingBeatmapSet));
         }
     }
 }
