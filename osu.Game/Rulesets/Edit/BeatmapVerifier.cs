@@ -26,7 +26,8 @@ namespace osu.Game.Rulesets.Edit
 
             // Metadata
             new CheckBeatmapInfoConsistency(),
-            new CheckMetadataConsistency()
+            new CheckMetadataConsistency(),
+            new CheckUnicodeInRomanized()
         };
 
         public IEnumerable<Issue> Run(IBeatmap playableBeatmap, WorkingBeatmapSet workingBeatmapSet)
