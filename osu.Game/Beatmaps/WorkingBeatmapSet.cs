@@ -18,12 +18,15 @@ namespace osu.Game.Beatmaps
             WorkingBeatmaps = workingBeatmaps.ToList();
         }
 
-        public WorkingBeatmapSet(WorkingBeatmap currentWorkingBeatmap, BeatmapManager beatmapManager)
+        public WorkingBeatmapSet(IBeatmap playableBeatmap, BeatmapManager beatmapManager, WorkingBeatmap workingBeatmap = null)
         {
             WorkingBeatmaps = new List<IWorkingBeatmap>();
 
-            foreach (var beatmapInfo in currentWorkingBeatmap.BeatmapSetInfo.Beatmaps)
-                WorkingBeatmaps.Add(beatmapManager.GetWorkingBeatmap(beatmapInfo, currentWorkingBeatmap));
+            foreach (var beatmapInfo in playableBeatmap.BeatmapInfo.BeatmapSet.Beatmaps)
+            {
+                workingBeatmap = beatmapManager.GetWorkingBeatmap(beatmapInfo, workingBeatmap);
+                WorkingBeatmaps.Add(workingBeatmap);
+            }
         }
 
         /// <summary>

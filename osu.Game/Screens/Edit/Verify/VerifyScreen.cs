@@ -125,7 +125,7 @@ namespace osu.Game.Screens.Edit.Verify
 
             private void refresh()
             {
-                var workingBeatmapset = new WorkingBeatmapSet(workingBeatmap.Value, beatmapManager);
+                var workingBeatmapset = new WorkingBeatmapSet(beatmap, beatmapManager, workingBeatmap.Value);
 
                 var issues = generalVerifier.Run(beatmap, workingBeatmapset);
 
