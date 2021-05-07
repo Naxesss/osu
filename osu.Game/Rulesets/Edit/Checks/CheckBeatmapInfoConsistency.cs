@@ -38,7 +38,7 @@ namespace osu.Game.Rulesets.Edit.Checks
         {
             var fields = new List<InfoField>
             {
-                // TODO: In stable the countdown only matters if there's enough time to show it. Not sure how this will work in lazer.
+                // TODO: In stable the countdown only matters if there's enough time to show it. Unsure if the same will apply to lazer.
                 new InfoField("countdown", info => info.Countdown),
                 new InfoField("epilepsy warning", info => info.EpilepsyWarning, condition: hasDrawableStoryboard),
                 new InfoField("widescreen support", info => info.WidescreenStoryboard, condition: hasDrawableStoryboard),
@@ -50,6 +50,9 @@ namespace osu.Game.Rulesets.Edit.Checks
                 yield return issue;
         }
 
+        /// <summary>
+        /// Returns whether there is a storyboard with elements drawn. This includes videos.
+        /// </summary>
         private bool hasDrawableStoryboard(IWorkingBeatmap workingBeatmap) => workingBeatmap.Storyboard.HasDrawable;
 
         private bool hasBreaks(IWorkingBeatmap workingBeatmap) => workingBeatmap.Beatmap.Breaks.Any();
