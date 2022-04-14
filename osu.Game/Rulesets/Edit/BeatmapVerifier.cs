@@ -37,6 +37,7 @@ namespace osu.Game.Rulesets.Edit
 
             // Metadata
             new CheckUnicodeInRomanized(),
+            new CheckGenreLanguageTags(),
         };
 
         public IEnumerable<Issue> Run(BeatmapVerifierContext context)
