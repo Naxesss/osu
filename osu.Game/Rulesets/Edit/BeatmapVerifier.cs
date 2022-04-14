@@ -34,6 +34,9 @@ namespace osu.Game.Rulesets.Edit
             new CheckUnsnappedObjects(),
             new CheckConcurrentObjects(),
             new CheckZeroLengthObjects(),
+
+            // Metadata
+            new CheckUnicodeInRomanized(),
         };
 
         public IEnumerable<Issue> Run(BeatmapVerifierContext context)
