@@ -20,7 +20,7 @@ namespace osu.Game.Rulesets.Edit.Checks
 
         private readonly struct RomanizedField
         {
-            public readonly string Name;
+            public string Name { get; }
             public readonly Func<BeatmapInfo, string> Get;
 
             public RomanizedField(string name, Func<BeatmapInfo, string> get)
