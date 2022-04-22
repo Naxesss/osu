@@ -17,8 +17,7 @@ namespace osu.Game.Rulesets.Edit.Checks
 
         public IEnumerable<IssueTemplate> PossibleTemplates => new IssueTemplate[]
         {
-            new IssueTemplateConcurrentSame(this),
-            new IssueTemplateConcurrentDifferent(this)
+            new IssueTemplateConcurrent(this)
         };
 
         public IEnumerable<Issue> Run(BeatmapVerifierContext context)
@@ -43,46 +42,35 @@ namespace osu.Game.Rulesets.Edit.Checks
                     if (!areConcurrent(hitobject, nextHitobject))
                         break;
 
-                    if (hitobject.GetType() == nextHitobject.GetType())
-                        yield return new IssueTemplateConcurrentSame(this).Create(hitobject, nextHitobject);
-                    else
-                        yield return new IssueTemplateConcurrentDifferent(this).Create(hitobject, nextHitobject);
+                    yield return new IssueTemplateConcurrent(this).Create(hitobject, nextHitobject);
                 }
             }
         }
 
         private bool areConcurrent(HitObject hitobject, HitObject nextHitobject) => nextHitobject.StartTime <= hitobject.GetEndTime() + ms_leniency;
 
-        public abstract class IssueTemplateConcurrent : IssueTemplate
+        private static string getFancyTypeString(HitObject hitobject, HitObject nextHitobject)
         {
-            protected IssueTemplateConcurrent(ICheck check, string unformattedMessage)
-                : base(check, IssueType.Problem, unformattedMessage)
+            string typeName = hitobject.GetType().Name;
+            string nextTypeName = nextHitobject.GetType().Name;
+
+            return typeName == nextTypeName ? $"{typeName}s" : $"{typeName} and {nextTypeName}";
+        }
+
+        public class IssueTemplateConcurrent : IssueTemplate
+        {
+            public IssueTemplateConcurrent(ICheck check)
+                : base(check, IssueType.Problem, "{0} are concurrent.")
             {
             }
 
             public Issue Create(HitObject hitobject, HitObject nextHitobject)
             {
                 var hitobjects = new List<HitObject> { hitobject, nextHitobject };
-                return new Issue(hitobjects, this, hitobject.GetType().Name, nextHitobject.GetType().Name)
+                return new Issue(hitobjects, this, getFancyTypeString(hitobject, nextHitobject))
                 {
                     Time = nextHitobject.StartTime
                 };
-            }
-        }
-
-        public class IssueTemplateConcurrentSame : IssueTemplateConcurrent
-        {
-            public IssueTemplateConcurrentSame(ICheck check)
-                : base(check, "{0}s are concurrent here.")
-            {
-            }
-        }
-
-        public class IssueTemplateConcurrentDifferent : IssueTemplateConcurrent
-        {
-            public IssueTemplateConcurrentDifferent(ICheck check)
-                : base(check, "{0} and {1} are concurrent here.")
-            {
             }
         }
     }
