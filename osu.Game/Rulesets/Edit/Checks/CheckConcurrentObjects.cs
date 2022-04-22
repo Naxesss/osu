@@ -17,7 +17,8 @@ namespace osu.Game.Rulesets.Edit.Checks
 
         public IEnumerable<IssueTemplate> PossibleTemplates => new IssueTemplate[]
         {
-            new IssueTemplateConcurrent(this)
+            new IssueTemplateConcurrent(this),
+            new IssueTemplateAlmostConcurrent(this)
         };
 
         public IEnumerable<Issue> Run(BeatmapVerifierContext context)
@@ -40,7 +41,15 @@ namespace osu.Game.Rulesets.Edit.Checks
                     // Two hitobjects cannot be concurrent without also being concurrent with all objects in between.
                     // So if the next object is not concurrent, then we know no future objects will be either.
                     if (!areConcurrent(hitobject, nextHitobject))
-                        break;
+                    {
+                        if (!areAlmostConcurrent(hitobject, nextHitobject))
+                            break;
+
+                        yield return new IssueTemplateAlmostConcurrent(this).Create(hitobject, nextHitobject);
+
+                        // There could be more objects almost concurrent, so continue until that's no longer the case.
+                        continue;
+                    }
 
                     yield return new IssueTemplateConcurrent(this).Create(hitobject, nextHitobject);
                 }
@@ -48,6 +57,7 @@ namespace osu.Game.Rulesets.Edit.Checks
         }
 
         private bool areConcurrent(HitObject hitobject, HitObject nextHitobject) => nextHitobject.StartTime <= hitobject.GetEndTime() + ms_leniency;
+        private bool areAlmostConcurrent(HitObject hitobject, HitObject nextHitobject) => nextHitobject.StartTime <= hitobject.GetEndTime() + 10;
 
         private static string getFancyTypeString(HitObject hitobject, HitObject nextHitobject)
         {
@@ -68,6 +78,23 @@ namespace osu.Game.Rulesets.Edit.Checks
             {
                 var hitobjects = new List<HitObject> { hitobject, nextHitobject };
                 return new Issue(hitobjects, this, getFancyTypeString(hitobject, nextHitobject))
+                {
+                    Time = nextHitobject.StartTime
+                };
+            }
+        }
+
+        public class IssueTemplateAlmostConcurrent : IssueTemplate
+        {
+            public IssueTemplateAlmostConcurrent(ICheck check)
+                : base(check, IssueType.Problem, "{0} are less than 10 ms apart ({1} ms).")
+            {
+            }
+
+            public Issue Create(HitObject hitobject, HitObject nextHitobject)
+            {
+                var hitobjects = new List<HitObject> { hitobject, nextHitobject };
+                return new Issue(hitobjects, this, getFancyTypeString(hitobject, nextHitobject), hitobject.GetEndTime() - nextHitobject.StartTime)
                 {
                     Time = nextHitobject.StartTime
                 };
