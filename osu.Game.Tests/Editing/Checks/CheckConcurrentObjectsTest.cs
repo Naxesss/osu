@@ -40,7 +40,7 @@ namespace osu.Game.Tests.Editing.Checks
         [Test]
         public void TestCirclesConcurrent()
         {
-            assertConcurrentSame(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 new HitCircle { StartTime = 100 },
                 new HitCircle { StartTime = 100 }
@@ -48,9 +48,9 @@ namespace osu.Game.Tests.Editing.Checks
         }
 
         [Test]
-        public void TestCirclesAlmostConcurrent()
+        public void TestCirclesConcurrentWithLeniency()
         {
-            assertConcurrentSame(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 new HitCircle { StartTime = 100 },
                 new HitCircle { StartTime = 101 }
@@ -70,7 +70,7 @@ namespace osu.Game.Tests.Editing.Checks
         [Test]
         public void TestSlidersConcurrent()
         {
-            assertConcurrentSame(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 getSliderMock(startTime: 100, endTime: 400.75d).Object,
                 getSliderMock(startTime: 300, endTime: 700.75d).Object
@@ -78,9 +78,9 @@ namespace osu.Game.Tests.Editing.Checks
         }
 
         [Test]
-        public void TestSlidersAlmostConcurrent()
+        public void TestSlidersConcurrentWithLeniency()
         {
-            assertConcurrentSame(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 getSliderMock(startTime: 100, endTime: 400.75d).Object,
                 getSliderMock(startTime: 402, endTime: 902.75d).Object
@@ -90,10 +90,20 @@ namespace osu.Game.Tests.Editing.Checks
         [Test]
         public void TestSliderAndCircleConcurrent()
         {
-            assertConcurrentDifferent(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 getSliderMock(startTime: 100, endTime: 400.75d).Object,
                 new HitCircle { StartTime = 300 }
+            });
+        }
+
+        [Test]
+        public void TestCircleAndSliderAlmostConcurrent()
+        {
+            assertAlmostConcurrent(new List<HitObject>
+            {
+                new HitCircle { StartTime = 100 },
+                getSliderMock(startTime: 108, endTime: 408.75d).Object
             });
         }
 
@@ -110,8 +120,7 @@ namespace osu.Game.Tests.Editing.Checks
             var issues = check.Run(getContext(hitobjects)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(3));
-            Assert.That(issues.Where(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrentDifferent).ToList(), Has.Count.EqualTo(2));
-            Assert.That(issues.Any(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrentSame));
+            Assert.That(issues.Where(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrent).ToList(), Has.Count.EqualTo(3));
         }
 
         [Test]
@@ -137,7 +146,7 @@ namespace osu.Game.Tests.Editing.Checks
         [Test]
         public void TestHoldNotesConcurrentOnSameColumn()
         {
-            assertConcurrentSame(new List<HitObject>
+            assertConcurrent(new List<HitObject>
             {
                 getHoldNoteMock(startTime: 100, endTime: 400.75d, column: 1).Object,
                 getHoldNoteMock(startTime: 300, endTime: 700.75d, column: 1).Object
@@ -169,20 +178,20 @@ namespace osu.Game.Tests.Editing.Checks
             Assert.That(check.Run(getContext(hitobjects)), Is.Empty);
         }
 
-        private void assertConcurrentSame(List<HitObject> hitobjects, int count = 1)
+        private void assertConcurrent(List<HitObject> hitobjects, int count = 1)
         {
             var issues = check.Run(getContext(hitobjects)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(count));
-            Assert.That(issues.All(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrentSame));
+            Assert.That(issues.All(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrent));
         }
 
-        private void assertConcurrentDifferent(List<HitObject> hitobjects, int count = 1)
+        private void assertAlmostConcurrent(List<HitObject> hitobjects, int count = 1)
         {
             var issues = check.Run(getContext(hitobjects)).ToList();
 
             Assert.That(issues, Has.Count.EqualTo(count));
-            Assert.That(issues.All(issue => issue.Template is CheckConcurrentObjects.IssueTemplateConcurrentDifferent));
+            Assert.That(issues.All(issue => issue.Template is CheckConcurrentObjects.IssueTemplateAlmostConcurrent));
         }
 
         private BeatmapVerifierContext getContext(List<HitObject> hitobjects)
